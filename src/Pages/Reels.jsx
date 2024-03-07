@@ -8,18 +8,44 @@ import {Link} from "react-router-dom";
 import Nav from "react-bootstrap/Nav";
 import ReelsService from "../API/ReelService";
 import MyInput from "../UI/input/MyInput";
+import CheckForm from "../UI/check/CheckForm";
+import ManufacturerService from "../API/ManufacturerService";
+
+import Form from "react-bootstrap/Form";
+import {getRole} from "../API/axios_helper";
 
 const Reels = () => {
     const [reels, setReels] = useState([])
     const [selectedSort, setSelectedSort] = useState('')
-    const [searchQuery,setSearchQuery] = useState('')
-    const [fetchReels,isReelsLoading,reelsError] = useFetching(async ()=>{
+    const [searchQuery, setSearchQuery] = useState('')
+    const [filterTags, setFilterTags] = useState([])
+    const [manufacturers, setManufacturers] = useState([])
+
+    const [fetchReels, isReelsLoading, reelsError] = useFetching(async () => {
         setReels(await ReelsService.getAll())
     });
 
-    const sortedReels = useMemo(() =>{
-        if(selectedSort){
-            return [...reels].sort((a, b) => {
+    const filteredDATA = reels.filter((node) =>
+        filterTags.length > 0
+            ? filterTags.every((filterTag) =>
+                node.manufacturer.name.includes(filterTag)
+            )
+            : reels
+    )
+
+    const filterHandler = (event) => {
+        if (event.target.checked) {
+            setFilterTags([...filterTags, event.target.value])
+        } else {
+            setFilterTags(
+                filterTags.filter((filterTag) => filterTag !== event.target.value)
+            )
+        }
+    }
+
+    const sortedReels = useMemo(() => {
+        if (selectedSort) {
+            return [...filteredDATA].sort((a, b) => {
                 if (typeof a[selectedSort] === 'string' && typeof b[selectedSort] === 'string') {
                     return a[selectedSort].localeCompare(b[selectedSort]);
                 } else {
@@ -27,15 +53,20 @@ const Reels = () => {
                 }
             })
         }
-        return reels
-    },[selectedSort,reels])
+        return filteredDATA
+    }, [selectedSort, reels,filterTags])
 
-    const sortedAndSearchedReels = useMemo(()=>{
-        return sortedReels.filter(reel=> reel.name.toLowerCase().includes(searchQuery.toLowerCase()))
-    },[searchQuery,sortedReels])
+    async function fetchManufacturers() {
+        setManufacturers(await ManufacturerService.getAll())
+    }
+
+    const sortedAndSearchedReels = useMemo(() => {
+        return sortedReels.filter(reel => reel.name.toLowerCase().includes(searchQuery.toLowerCase()))
+    }, [searchQuery, sortedReels])
 
     useEffect(() => {
         fetchReels().then(r => console.log(r));
+        fetchManufacturers().then(r => console.log(r))
     }, []);
     const sortCards = (sort) => {
         setSelectedSort(sort);
@@ -46,8 +77,8 @@ const Reels = () => {
                 <div>
                     <MyInput
                         value={searchQuery}
-                        onChange={e=>setSearchQuery(e.target.value)}
-                        placeholder = "Поиск по названию"
+                        onChange={e => setSearchQuery(e.target.value)}
+                        placeholder="Поиск по названию"
                     />
                     <MySelect
                         value={selectedSort}
@@ -57,12 +88,28 @@ const Reels = () => {
                             {value: 'price', name: 'По цене'},
                         ]}
                     />
-                    <Nav className="me-auto">
-                        <Link to="/createReel" className="nav-link">Добавить катушку</Link>
-                    </Nav>
+                    <Form className="mx-2" style={{border: "1px solid green", borderRadius: "5px"}}>
+                        <div className="mx-2">
+                            <h5>Производители</h5>
+                            {manufacturers.map(m =>
+                                <Form.Check
+                                    type="checkbox"
+                                    onChange={filterHandler}
+                                    value={m.name}
+                                    id={m.name}
+                                    label={m.name}
+                                />
+                            )}
+                        </div>
+                    </Form>
+                    {getRole()==="ADMIN" ?
+                        <Nav className="me-auto">
+                            <Link to="/createReel" className="nav-link">Добавить катушку</Link>
+                        </Nav> : console.log()}
+
                 </div>
                 {reelsError && <h1> Произошла ошибка!</h1>}
-                {isReelsLoading ? <Loader/> :  <ReelCardList cards={sortedAndSearchedReels}/>}
+                {isReelsLoading ? <Loader/> : <ReelCardList cards={sortedAndSearchedReels}/>}
             </div>
         </div>
     );

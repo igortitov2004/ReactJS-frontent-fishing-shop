@@ -36,7 +36,7 @@ function FormExample() {
 
     useEffect( () => {
         fetchTypesOfReels().then(r =>console.log(r))
-       fetchManufacturers().then(r => console.log(r))
+        fetchManufacturers().then(r => console.log(r))
     }, []);
 
 
@@ -45,15 +45,14 @@ function FormExample() {
     }
     const handleSubmit = (event) => {
         const form = event.currentTarget;
-        if (form.checkValidity()===false) {
+        if (form.checkValidity()===false){
             event.preventDefault();
             event.stopPropagation();
         }else{
             addNewReel()
-            navigate("/reels")
+            navigate('/reels')
         }
         setValidated(true);
-
     }
 
 

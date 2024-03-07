@@ -1,6 +1,7 @@
 import React from 'react';
 import RodCard from "./RodCard";
 import ReelCard from "./ReelCard";
+import Row from "react-bootstrap/Row";
 
 const ReelCardList = ({cards}) => {
     if (cards.length === 0) {
@@ -10,11 +11,12 @@ const ReelCardList = ({cards}) => {
     return (
 
         <div>
-
-            {cards.map(card=>
-                <div key={card.id}>
-                    {<ReelCard card = {card}/>}
-                </div>)}
+            <Row md={2} className="g-3">
+                {cards.map(card=>
+                    <div key={card.id}>
+                        {<ReelCard card = {card}/>}
+                    </div>)}
+            </Row>
         </div>
     );
 };

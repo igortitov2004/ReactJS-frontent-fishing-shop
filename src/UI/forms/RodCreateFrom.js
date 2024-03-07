@@ -52,7 +52,7 @@ function FormExample() {
             event.stopPropagation();
         }else{
             addNewRod()
-            navigate("/rods")
+            navigate('/rods')
         }
         setValidated(true);
 

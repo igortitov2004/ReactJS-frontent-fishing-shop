@@ -50,7 +50,7 @@ function FormExample() {
             event.stopPropagation();
         }else{
             editRod()
-            navigate("/rods")
+            navigate('/rods')
         }
         setValidated(true);
 
@@ -134,7 +134,7 @@ function FormExample() {
                     </Form.Control.Feedback>
                 </Form.Group>
             </Row>
-            <Button type="submit"  style={{alignSelf:"flex-start"}}>Добавить</Button>
+            <Button type="submit"  style={{alignSelf:"flex-start"}}>Сохранить</Button>
         </Form>
     );
 }
